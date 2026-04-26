@@ -1,0 +1,317 @@
+
+:root {
+  --bg:#06091a;
+  --surf:rgba(12,18,45,0.9);
+  --surf2:rgba(18,26,62,0.85);
+  --gold:#c9a84c;
+  --gold-lt:#e8cf82;
+  --gold-dim:rgba(201,168,76,0.1);
+  --gold-glow:rgba(201,168,76,0.3);
+  --cream:#f5e9ca;
+  --muted:#7a8fb8;
+  --green:#3fcf7a;
+  --green-dim:rgba(63,207,122,0.12);
+  --purple:rgba(150,110,210,0.6);
+  --border:rgba(201,168,76,0.18);
+  --r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--cream);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+canvas#stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+#geo-pattern{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 5 L61 35 L94 35 L68 55 L78 87 L50 68 L22 87 L32 55 L6 35 L39 35Z' fill='none' stroke='rgba(201,168,76,0.04)' stroke-width='0.6'/%3E%3C/svg%3E");
+  background-size:100px 100px;
+}
+/* ───────── SETUP MODAL ───────── */
+#setup-overlay{
+  position:fixed;inset:0;
+  background:rgba(6,9,26,0.98);
+  backdrop-filter:blur(24px);
+  z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+.setup-box{
+  background:var(--surf2);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:3rem 2.25rem;
+  width:100%;max-width:420px;
+  text-align:center;
+  animation:fadeUp .5s ease both;
+}
+.bismillah{
+  font-family:'Amiri',serif;
+  font-size:1.5rem;
+  color:var(--gold);
+  margin-bottom:.6rem;
+  opacity:.9;
+}
+.setup-logo{
+  font-family:'Amiri',serif;
+  font-size:3rem;
+  color:var(--gold-lt);
+  line-height:1;
+  margin-bottom:.25rem;
+}
+.setup-sub{color:var(--muted);font-size:.88rem;margin-bottom:2.2rem;letter-spacing:.03em}
+.fg{text-align:left;margin-bottom:1.1rem}
+.fg label{
+  display:block;font-size:.72rem;font-weight:600;
+  color:var(--muted);letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:.4rem;
+}
+.fg input{
+  width:100%;padding:.8rem 1rem;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--cream);font-family:'Outfit',sans-serif;font-size:.95rem;
+  outline:none;transition:border-color .2s;
+}
+.fg input:focus{border-color:var(--gold)}
+.fg input::placeholder{color:var(--muted)}
+.fg small{display:block;color:var(--muted);font-size:.72rem;margin-top:.35rem;font-weight:300}
+.btn-primary{
+  width:100%;padding:.95rem;
+  background:linear-gradient(120deg,#b8922e,#e8cf82,#b8922e);
+  background-size:200% auto;
+  border:none;border-radius:12px;
+  color:#07091a;font-family:'Outfit',sans-serif;
+  font-size:1rem;font-weight:600;
+  cursor:pointer;letter-spacing:.04em;
+  transition:background-position .4s,transform .15s,box-shadow .2s;
+  margin-top:.75rem;
+}
+.btn-primary:hover{background-position:right center;transform:translateY(-2px);box-shadow:0 8px 24px var(--gold-glow)}
+/* ───────── APP SHELL ───────── */
+#app{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:1.75rem 1.25rem 5rem}
+.card{
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  backdrop-filter:blur(16px);
+}
+/* ───────── HEADER ───────── */
+#hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem}
+.hdr-l h1{font-family:'Amiri',serif;font-size:2.4rem;color:var(--gold-lt);line-height:1}
+.hdr-l p{font-size:.82rem;color:var(--muted);margin-top:.2rem}
+.hdr-r{text-align:right}
+.hdr-greeting{font-size:1.05rem;font-weight:600;color:var(--cream)}
+.hdr-loc{font-size:.78rem;color:var(--muted);margin-top:.2rem;display:flex;align-items:center;justify-content:flex-end;gap:.3rem}
+/* ───────── AYAH BANNER ───────── */
+#ayah-card{
+  padding:1.75rem 2.25rem;
+  margin-bottom:1.4rem;
+  text-align:center;position:relative;overflow:hidden;
+}
+#ayah-card::before,#ayah-card::after{
+  content:'✦';position:absolute;
+  color:var(--gold);opacity:.12;font-size:6rem;line-height:1;
+}
+#ayah-card::before{top:-1rem;left:.5rem}
+#ayah-card::after{bottom:-1rem;right:.5rem}
+.ayah-arabic{
+  font-family:'Amiri',serif;font-size:1.65rem;
+  color:var(--gold-lt);line-height:2;
+  direction:rtl;margin-bottom:.8rem;
+}
+.ayah-trans{font-size:.9rem;color:var(--cream);font-style:italic;opacity:.88;margin-bottom:.4rem}
+.ayah-ref{font-size:.73rem;color:var(--gold);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.shuffle-btn{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  padding:.35rem .8rem;border-radius:8px;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.75rem;
+  transition:all .2s;margin-top:.9rem;
+}
+.shuffle-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* ───────── COUNTDOWN ───────── */
+#cd-card{
+  padding:1.75rem 2rem;margin-bottom:1.4rem;
+  text-align:center;
+  background:linear-gradient(135deg,rgba(201,168,76,.07),rgba(232,207,130,.04));
+  border-color:rgba(201,168,76,.28);
+}
+.cd-lbl{font-size:.72rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:.4rem}
+.cd-name{font-family:'Amiri',serif;font-size:2rem;color:var(--gold-lt);margin-bottom:.4rem}
+.cd-time{font-size:3.2rem;font-weight:300;color:var(--cream);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.cd-time span{font-size:.95rem;color:var(--muted);margin:0 .1rem}
+.cd-at{font-size:.83rem;color:var(--muted);margin-top:.5rem}
+/* ───────── BADGES ───────── */
+.badges{display:flex;justify-content:center;gap:1rem;margin-top:1.4rem;flex-wrap:wrap}
+.badge{
+  background:var(--gold-dim);border:1px solid var(--border);
+  border-radius:10px;padding:.45rem 1rem;min-width:90px;text-align:center;
+}
+.badge-val{display:block;font-size:1.35rem;font-weight:600;color:var(--gold-lt)}
+.badge-lbl{display:block;font-size:.7rem;color:var(--muted);margin-top:.1rem}
+/* ───────── SECTION TITLE ───────── */
+.sec-title{
+  font-family:'Amiri',serif;font-size:1.2rem;color:var(--gold);
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:1rem;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+/* ───────── PRAYER GRID ───────── */
+.prayer-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:.9rem;margin-bottom:1.4rem;
+}
+.pcard{
+  padding:1.25rem;border-radius:13px;
+  cursor:pointer;user-select:none;
+  position:relative;overflow:hidden;
+  transition:transform .2s,border-color .25s,background .25s,box-shadow .25s;
+}
+.pcard:hover{transform:translateY(-3px)}
+.pcard.next{
+  border-color:rgba(201,168,76,.5);
+  box-shadow:0 0 28px var(--gold-glow);
+}
+.pcard.done{
+  background:var(--green-dim);
+  border-color:rgba(63,207,122,.35);
+}
+.pcard.extra{border-color:rgba(150,110,210,.25)}
+.pcard.extra.done{background:var(--green-dim);border-color:rgba(63,207,122,.35)}
+.pcard-check{
+  position:absolute;top:.8rem;right:.8rem;
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;transition:all .25s;
+}
+.pcard.done .pcard-check{background:var(--green);border-color:var(--green);color:#06091a;font-weight:700}
+.pcard-icon{font-size:1.4rem;margin-bottom:.5rem}
+.pcard-name{font-family:'Amiri',serif;font-size:1.15rem;color:var(--cream);font-weight:700}
+.pcard-arabic{font-family:'Amiri',serif;font-size:.88rem;color:var(--gold);opacity:.75;direction:rtl}
+.pcard-time{font-size:1.1rem;font-weight:600;color:var(--cream);margin:.5rem 0 .2rem;font-variant-numeric:tabular-nums}
+.pcard-status{font-size:.73rem;color:var(--muted)}
+.pcard.done .pcard-status{color:var(--green)}
+/* ───────── MANUAL ENTRY ───────── */
+#manual-wrap{margin-bottom:1.4rem}
+.toggle-btn{
+  background:none;border:1px solid var(--border);
+  color:var(--muted);padding:.5rem 1.1rem;
+  border-radius:8px;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.82rem;
+  transition:all .2s;margin-bottom:1rem;
+}
+.toggle-btn:hover{border-color:var(--gold);color:var(--gold)}
+.manual-inner{display:none}
+.manual-inner.open{display:block}
+.manual-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
+  gap:.75rem;margin-bottom:1rem;
+}
+.mi label{
+  display:block;font-size:.72rem;color:var(--muted);
+  font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem;
+}
+.mi input[type=time]{
+  width:100%;padding:.6rem .75rem;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--cream);font-family:'Outfit',sans-serif;font-size:.9rem;
+  outline:none;transition:border-color .2s;color-scheme:dark;
+}
+.mi input[type=time]:focus{border-color:var(--gold)}
+.btn-sm{
+  background:linear-gradient(120deg,#b8922e,#e8cf82,#b8922e);
+  background-size:200% auto;
+  border:none;border-radius:9px;
+  color:#07091a;font-family:'Outfit',sans-serif;
+  font-size:.85rem;font-weight:600;
+  padding:.55rem 1.25rem;cursor:pointer;
+  transition:background-position .4s,transform .15s;
+}
+.btn-sm:hover{background-position:right center;transform:translateY(-1px)}
+.btn-ghost{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.82rem;
+  margin-left:.9rem;transition:color .2s;
+}
+.btn-ghost:hover{color:var(--cream)}
+/* ───────── CHART ───────── */
+#chart-wrap{margin-bottom:1.4rem}
+#chart-wrap .card{padding:1.5rem}
+/* ───────── TOAST ───────── */
+#toast{
+  position:fixed;bottom:2rem;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--surf2);border:1px solid var(--gold);
+  border-radius:12px;padding:.72rem 1.5rem;
+  font-size:.88rem;color:var(--gold-lt);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  z-index:8000;white-space:nowrap;pointer-events:none;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+/* ───────── LOADING ───────── */
+#loading{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.spin{
+  width:38px;height:38px;
+  border:2.5px solid var(--border);
+  border-top-color:var(--gold);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:0 auto 1rem;
+}
+/* ───────── SETTINGS ICON ───────── */
+#settings-btn{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  width:46px;height:46px;border-radius:50%;
+  background:var(--surf2);border:1px solid var(--border);
+  color:var(--muted);font-size:1.1rem;
+  cursor:pointer;z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,color .2s;
+}
+#settings-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* ───────── ANIMATIONS ───────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-in{animation:fadeUp .55s ease both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+/* ───────── RESPONSIVE ───────── */
+@media(max-width:600px){
+  .setup-box{padding:2rem 1.25rem}
+  .cd-time{font-size:2.3rem}
+  .prayer-grid{grid-template-columns:repeat(2,1fr)}
+  .hdr-l h1{font-size:1.85rem}
+  .ayah-arabic{font-size:1.3rem}
+  .badges{gap:.6rem}
+}
+.hidden{display:none!important}
+
+/* Light Theme Overrides */
+body.light-theme {
+  --bg: #f0f4f8;
+  --surf: rgba(255, 255, 255, 0.9);
+  --surf2: rgba(240, 244, 248, 0.85);
+  --cream: #1a202c;
+  --muted: #4a5568;
+  --gold: #b8922e;
+  --gold-lt: #9a7b2c;
+  --border: rgba(184, 146, 46, 0.3);
+}
+body.light-theme #stars { display: none; }
+
+/* Theme Toggle Button */
+#theme-btn {
+  position: fixed; bottom: 5rem; right: 1.5rem;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--muted); font-size: 1.1rem; cursor: pointer; z-index: 100;
+}
+
+
+

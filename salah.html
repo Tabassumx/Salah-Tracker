@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Salah Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="geo-pattern"></div>
+
+<!---- SETUP MODAL -->
+<div id="setup-overlay">
+  <div class="setup-box">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+    <div class="setup-logo">Salah Tracker</div>
+    <p class="setup-sub">Your Daily Prayer Companion</p>
+    <div class="fg">
+      <label>Your Name</label>
+      <input type="text" id="in-name" placeholder="Enter your name" autocomplete="name"/>
+    </div>
+    <div class="fg">
+      <label>OpenWeather API Key <em style="text-transform:none;font-weight:300">(optional)</em></label>
+      <input type="text" id="in-key" placeholder="e.g. a1b2c3d4e5f6..."/>
+      <small>Used to display your city name. <a href="https://openweathermap.org/api" target="_blank" style="color:var(--gold)">Get a free key →</a></small>
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:.25rem">We'll request your location to calculate accurate prayer times based on Aladhan API.</p>
+    <button class="btn-primary" onclick="startSetup()">Begin — بسم الله</button>
+  </div>
+</div>
+
+
+<div id="auth-overlay">
+  <div class="setup-box">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+    <div class="setup-logo">Salah Tracker</div>
+    <p class="setup-sub">Sign in to sync your prayers & streaks</p>
+    
+    <div class="fg">
+      <input type="email" id="auth-email" placeholder="Email"/>
+    </div>
+    <div class="fg">
+      <input type="password" id="auth-pass" placeholder="Password"/>
+    </div>
+    
+    <button class="btn-primary" onclick="signInEmail()">Sign In / Sign Up</button>
+    <button class="btn-primary" style="background: #fff; color: #333; margin-top: 1rem;" onclick="signInGoogle()">
+      Sign in with Google
+    </button>
+  </div>
+</div>
+
+
+<div id="toast"></div>
+
+<button id="settings-btn" onclick="resetApp()" title="Reset / Change Settings">⚙</button>
+
+
+<div id="app" class="hidden">
+  <div id="loading"><div class="spin"></div><p>Fetching prayer times...</p></div>
+
+  <div id="main" class="hidden">
+
+    <header id="hdr" class="fade-in">
+      <div class="hdr-l">
+        <h1>صَلَاة <span style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:300;color:var(--gold);vertical-align:middle">Salah</span></h1>
+        <p id="hdr-date"></p>
+      </div>
+      <div class="hdr-r">
+        <div class="hdr-greeting" id="hdr-greet"></div>
+        <div class="hdr-loc">📍 <span id="hdr-loc">—</span></div>
+      </div>
+    </header>
+
+    
+    <div class="card fade-in" id="ayah-card">
+      <div class="ayah-arabic" id="ay-ar"></div>
+      <div class="ayah-trans" id="ay-tr"></div>
+      <div class="ayah-ref" id="ay-ref"></div>
+      <div style="text-align:center"><button class="shuffle-btn" onclick="renderAyah()">↺ New Verse</button></div>
+    </div>
+
+  
+    <div class="card fade-in" id="cd-card">
+      <div class="cd-lbl">Next Prayer</div>
+      <div class="cd-name" id="cd-name">—</div>
+      <div class="cd-time">
+        <span id="ct-h">00</span><span>h</span>
+        <span id="ct-m">00</span><span>m</span>
+        <span id="ct-s">00</span><span>s</span>
+      </div>
+      <div class="cd-at" id="cd-at"></div>
+      <div class="badges">
+        <div class="badge"><span class="badge-val" id="b-streak">0</span><span class="badge-lbl"> Streak</span></div>
+        <div class="badge"><span class="badge-val" id="b-today">0/5</span><span class="badge-lbl"> Today</span></div>
+        <div class="badge"><span class="badge-val" id="b-best">0</span><span class="badge-lbl"> Best</span></div>
+        <div class="badge"><span class="badge-val" id="b-total">0</span><span class="badge-lbl"> Total</span></div>
+      </div>
+    </div>
+
+    <div class="sec-title fade-in">الصلوات الخمس — Fard Prayers</div>
+    <div class="prayer-grid fade-in" id="fard-grid"></div>
+
+   
+    <div class="sec-title fade-in">صلوات نافلة — Extra Prayers</div>
+    <div class="prayer-grid fade-in" id="extra-grid"></div>
+
+    
+    <div id="manual-wrap" class="fade-in">
+      <button class="toggle-btn" onclick="toggleManual()">⚙ Manual Prayer Times</button>
+      <div class="manual-inner" id="manual-inner">
+        <div class="card" style="padding:1.25rem">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Override auto-calculated times with your local mosque schedule.</p>
+          <div class="manual-grid" id="manual-grid"></div>
+          <button class="btn-sm" onclick="saveManual()">Save Times</button>
+          <button class="btn-ghost" onclick="clearManual()">Clear & Use Auto</button>
+        </div>
+      </div>
+    </div>
+
+    
+      <div id="chart-wrap" class="fade-in">
+      <div class="sec-title">المداومة — 7-Day Progress</div>
+      <div class="card"><canvas id="streak-chart" height="130"></canvas></div>
+    </div>
+
+  </div>
+</div>
+
+
+ <script src="script.js"></script>
+
+</body>
+</html>
